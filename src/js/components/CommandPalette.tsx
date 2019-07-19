@@ -17,6 +17,7 @@ const trigger = (
 const Shortcut = ({ shortcut }) => <kbd className='shortcut'>{shortcut}</kbd>
 
 const Command = props => {
+  // shortcut can be string or array of string (multiple shortcuts)
   const { shortcut } = props
   const shortcuts = Array.isArray(shortcut) ? (
     shortcut.map(x => <Shortcut key={x} shortcut={x} />)
@@ -38,10 +39,14 @@ const Command = props => {
 export default observer(() => {
   const { shortcutStore } = useStore()
   const { shortcuts, pause, resume } = shortcutStore
-  const commands = shortcuts.map(([shortcut, command, description]) => {
-    const name = typeof description === 'function' ? description() : description
-    return { name, shortcut, command }
-  })
+  const commands = shortcuts
+    .map(([shortcut, command, name]) => {
+      if (typeof name !== 'string') {
+        return
+      }
+      return { name, shortcut, command }
+    })
+    .filter(x => x)
   return (
     <ReactCommandPalette
       closeOnSelect
